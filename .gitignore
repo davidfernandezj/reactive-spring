@@ -12,6 +12,9 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/
+
+reactive-spring.iml
 
 # Generated files
 .idea/**/contentModel.xml
