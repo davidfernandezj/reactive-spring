@@ -1,6 +1,6 @@
 package demo.spring.reactivespring.model;
 
-import java.util.Date;
+import java.time.Instant;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -21,7 +21,7 @@ public class Tweet {
     private String text;
 
     @NotNull
-    private Date createdAt = new Date();
+    private Instant createdAt = Instant.now();
 
     public Tweet(String text) {
         this.text = text;
