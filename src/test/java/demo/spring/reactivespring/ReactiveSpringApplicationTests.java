@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Ignore
+@Ignore	//https://springframework.guru/spring-data-mongodb-with-reactive-mongodb/
 public class ReactiveSpringApplicationTests {
 
 	@Autowired
