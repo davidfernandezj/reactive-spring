@@ -4,6 +4,7 @@ import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TweetRepository;
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Ignore
 public class ReactiveSpringApplicationTests {
 
 	@Autowired
