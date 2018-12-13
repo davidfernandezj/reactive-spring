@@ -4,7 +4,6 @@ import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TweetRepository;
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Ignore	//https://springframework.guru/spring-data-mongodb-with-reactive-mongodb/
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+	properties="spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration, "
+		+ "org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration")
+//https://springframework.guru/spring-data-mongodb-with-reactive-mongodb/
 public class ReactiveSpringApplicationTests {
 
 	@Autowired
