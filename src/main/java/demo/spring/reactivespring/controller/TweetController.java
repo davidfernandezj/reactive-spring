@@ -4,6 +4,10 @@ import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TweetRepository;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +22,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
+@CacheConfig(cacheNames={"tweetsCache"})
 public class TweetController {
 
     private final TweetRepository tweetRepository;
+
+    @Value("${sleepingTime:0}")
+    private int sleepingTime;
 
     @Autowired
     public TweetController(TweetRepository tweetRepository) {
@@ -28,23 +36,29 @@ public class TweetController {
     }
 
     @GetMapping("/tweets")
+    @Cacheable
     public Flux<Tweet> getAllTweets() {
+        sleepSomeTime();
         return tweetRepository.findAll();
     }
 
     @PostMapping("/tweets")
+    @CachePut
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
         return tweetRepository.save(tweet);
     }
 
     @GetMapping("/tweets/{id}")
+    @Cacheable
     public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
+        sleepSomeTime();
         return tweetRepository.findById(tweetId)
             .map(ResponseEntity::ok)
             .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/tweets/{id}")
+    @CachePut
     public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
         @Valid @RequestBody Tweet tweet) {
         return tweetRepository.findById(tweetId)
@@ -57,6 +71,7 @@ public class TweetController {
     }
 
     @DeleteMapping("/tweets/{id}")
+    @CachePut
     public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
 
         return tweetRepository.findById(tweetId)
@@ -71,5 +86,13 @@ public class TweetController {
     @GetMapping(value = "/stream/tweets", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Tweet> streamAllTweets() {
         return tweetRepository.findAll();
+    }
+
+    private void sleepSomeTime() {
+        try {
+            Thread.sleep(sleepingTime);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
