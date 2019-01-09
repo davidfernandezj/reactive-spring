@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.security.test.context.support.WithMockUser;
+
 import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
@@ -27,6 +29,7 @@ public class ReactiveSpringApplicationTests {
 	TweetRepository tweetRepository;
 
 	@Test
+	@WithMockUser
 	public void testCreateTweet() {
 		Tweet tweet = new Tweet("This is a Test Tweet");
 
@@ -43,6 +46,7 @@ public class ReactiveSpringApplicationTests {
 	}
 
 	@Test
+	@WithMockUser
 	public void testGetAllTweets() {
 		webTestClient.get().uri("/tweets")
 			.accept(MediaType.APPLICATION_JSON_UTF8)
@@ -53,6 +57,7 @@ public class ReactiveSpringApplicationTests {
 	}
 
 	@Test
+	@WithMockUser
 	public void testGetSingleTweet() {
 		Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block();
 
@@ -66,6 +71,7 @@ public class ReactiveSpringApplicationTests {
 	}
 
 	@Test
+	@WithMockUser
 	public void testUpdateTweet() {
 		Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block();
 
@@ -84,6 +90,7 @@ public class ReactiveSpringApplicationTests {
 	}
 
 	@Test
+	@WithMockUser
 	public void testDeleteTweet() {
 		Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
 
