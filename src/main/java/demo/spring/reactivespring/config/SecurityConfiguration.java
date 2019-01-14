@@ -27,9 +27,8 @@ public class SecurityConfiguration {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http.authorizeExchange()
             .anyExchange().authenticated()
-            .and()
-            .httpBasic()
-            .and()
-            .build();
+            .and().httpBasic()
+            .and().formLogin()
+            .and().build();
     }
 }

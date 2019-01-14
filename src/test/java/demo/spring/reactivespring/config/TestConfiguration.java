@@ -1,12 +1,10 @@
 package demo.spring.reactivespring.config;
 
-import demo.spring.reactivespring.testimplementations.TestTweetRepository;
 import demo.spring.reactivespring.repository.TweetRepository;
+import demo.spring.reactivespring.testimplementations.TestTweetRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
 public class TestConfiguration {
@@ -17,7 +15,7 @@ public class TestConfiguration {
         return new TestTweetRepository();
     }
 
-    /* Comment this to make a proper test */
+    /* Comment this to make a proper test
     @Bean
     @Primary
     public SecurityWebFilterChain disableSpringSecurityFilterChain(ServerHttpSecurity http) {
@@ -26,4 +24,5 @@ public class TestConfiguration {
             .csrf().disable()
             .httpBasic().disable().build();
     }
+     */
 }

@@ -1,18 +1,23 @@
 package demo.spring.reactivespring;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+
 import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TweetRepository;
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.security.test.context.support.WithMockUser;
-
 import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
@@ -23,17 +28,31 @@ import reactor.core.publisher.Mono;
 public class ReactiveSpringApplicationTests {
 
 	@Autowired
+	ApplicationContext context;
+
+	@Autowired
 	private WebTestClient webTestClient;
 
 	@Autowired
 	TweetRepository tweetRepository;
+
+	@Before
+	public void setup() {
+		this.webTestClient = WebTestClient
+			.bindToApplicationContext(this.context)
+			// add Spring Security test Support
+			.apply(springSecurity())
+			.configureClient()
+			.filter(basicAuthentication())
+			.build();
+	}
 
 	@Test
 	@WithMockUser
 	public void testCreateTweet() {
 		Tweet tweet = new Tweet("This is a Test Tweet");
 
-		webTestClient.post().uri("/tweets")
+		webTestClient.mutateWith(csrf()).post().uri("/tweets")
 			.contentType(MediaType.APPLICATION_JSON_UTF8)
 			.accept(MediaType.APPLICATION_JSON_UTF8)
 			.body(Mono.just(tweet), Tweet.class)
@@ -77,7 +96,7 @@ public class ReactiveSpringApplicationTests {
 
 		Tweet newTweetData = new Tweet("Updated Tweet");
 
-		webTestClient.put()
+		webTestClient.mutateWith(csrf()).put()
 			.uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
 			.contentType(MediaType.APPLICATION_JSON_UTF8)
 			.accept(MediaType.APPLICATION_JSON_UTF8)
@@ -94,7 +113,7 @@ public class ReactiveSpringApplicationTests {
 	public void testDeleteTweet() {
 		Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
 
-		webTestClient.delete()
+		webTestClient.mutateWith(csrf()).delete()
 			.uri("/tweets/{id}", Collections.singletonMap("id",  tweet.getId()))
 			.exchange()
 			.expectStatus().isOk();
