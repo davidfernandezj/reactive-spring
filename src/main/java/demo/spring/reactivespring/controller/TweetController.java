@@ -2,6 +2,7 @@ package demo.spring.reactivespring.controller;
 
 import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TweetRepository;
+import demo.spring.reactivespring.service.TweetService;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,34 +26,30 @@ import reactor.core.publisher.Mono;
 @CacheConfig(cacheNames={"tweetsCache"})
 public class TweetController {
 
-    private final TweetRepository tweetRepository;
-
-    @Value("${sleepingTime:0}")
-    private int sleepingTime;
+    private final TweetService tweetService;
 
     @Autowired
-    public TweetController(TweetRepository tweetRepository) {
-        this.tweetRepository = tweetRepository;
+    public TweetController(TweetService tweetService) {
+        this.tweetService = tweetService;
     }
 
     @GetMapping("/tweets")
     @Cacheable
     public Flux<Tweet> getAllTweets() {
-        sleepSomeTime();
-        return tweetRepository.findAll();
+        return tweetService.findAll();
     }
 
     @PostMapping("/tweets")
     @CachePut
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
-        return tweetRepository.save(tweet);
+        return tweetService.save(tweet);
     }
 
     @GetMapping("/tweets/{id}")
     @Cacheable
     public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
         sleepSomeTime();
-        return tweetRepository.findById(tweetId)
+        return tweetService.findById(tweetId)
             .map(ResponseEntity::ok)
             .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -61,10 +58,10 @@ public class TweetController {
     @CachePut
     public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
         @Valid @RequestBody Tweet tweet) {
-        return tweetRepository.findById(tweetId)
+        return tweetService.findById(tweetId)
             .flatMap(existingTweet -> {
                 existingTweet.setText(tweet.getText());
-                return tweetRepository.save(existingTweet);
+                return tweetService.save(existingTweet);
             })
             .map(updatedTweet -> new ResponseEntity<>(updatedTweet, HttpStatus.OK))
             .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -74,9 +71,9 @@ public class TweetController {
     @CachePut
     public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
 
-        return tweetRepository.findById(tweetId)
+        return tweetService.findById(tweetId)
             .flatMap(existingTweet ->
-                tweetRepository.delete(existingTweet)
+                tweetService.delete(existingTweet)
                     .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)))
             )
             .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -85,14 +82,11 @@ public class TweetController {
     // Tweets are Sent to the client as Server Sent Events
     @GetMapping(value = "/stream/tweets", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Tweet> streamAllTweets() {
-        return tweetRepository.findAll();
+        return tweetService.findAll();
     }
 
-    private void sleepSomeTime() {
-        try {
-            Thread.sleep(sleepingTime);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    void sleepSomeTime() {
+
     }
+
 }
