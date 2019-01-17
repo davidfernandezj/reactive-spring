@@ -30,6 +30,7 @@ public class TweetService {
     }
 
     public Flux<Tweet> findAllTrendingTweets() {
+        //https://spring.io/blog/2016/06/13/notes-on-reactive-programming-part-ii-writing-some-code
         return findAll().collectList().flatMap(tweets -> getTrendingWords().collectList()
             .map(words ->
                 tweets.stream()
