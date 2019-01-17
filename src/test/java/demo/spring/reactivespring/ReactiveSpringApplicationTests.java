@@ -50,13 +50,15 @@ public class ReactiveSpringApplicationTests {
 	@Test
 	@WithMockUser
 	public void testCreateTweet() {
+		//Given
 		Tweet tweet = new Tweet("This is a Test Tweet");
-
+		//When
 		webTestClient.mutateWith(csrf()).post().uri("/tweets")
 			.contentType(MediaType.APPLICATION_JSON_UTF8)
 			.accept(MediaType.APPLICATION_JSON_UTF8)
 			.body(Mono.just(tweet), Tweet.class)
 			.exchange()
+		//Then
 			.expectStatus().isOk()
 			.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
 			.expectBody()
@@ -67,9 +69,27 @@ public class ReactiveSpringApplicationTests {
 	@Test
 	@WithMockUser
 	public void testGetAllTweets() {
+		//Given
+		//When
 		webTestClient.get().uri("/tweets")
 			.accept(MediaType.APPLICATION_JSON_UTF8)
 			.exchange()
+		//Then
+			.expectStatus().isOk()
+			.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
+			.expectBodyList(Tweet.class);
+	}
+
+	@Test
+	@WithMockUser
+	public void testGetTrendingTweets() {
+		//Given
+		tweetRepository.save(new Tweet("Where is the Hokage ?"));
+		//When
+		webTestClient.get().uri("/tweets/trending")
+			.accept(MediaType.APPLICATION_JSON_UTF8)
+			.exchange()
+		//Then
 			.expectStatus().isOk()
 			.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
 			.expectBodyList(Tweet.class);
@@ -78,11 +98,13 @@ public class ReactiveSpringApplicationTests {
 	@Test
 	@WithMockUser
 	public void testGetSingleTweet() {
+		//Given
 		Tweet tweet = tweetRepository.save(new Tweet("Hello, World!")).block();
-
+		//When
 		webTestClient.get()
 			.uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
 			.exchange()
+		//Then
 			.expectStatus().isOk()
 			.expectBody()
 			.consumeWith(response ->
@@ -92,16 +114,17 @@ public class ReactiveSpringApplicationTests {
 	@Test
 	@WithMockUser
 	public void testUpdateTweet() {
+		//Given
 		Tweet tweet = tweetRepository.save(new Tweet("Initial Tweet")).block();
-
 		Tweet newTweetData = new Tweet("Updated Tweet");
-
+		//When
 		webTestClient.mutateWith(csrf()).put()
 			.uri("/tweets/{id}", Collections.singletonMap("id", tweet.getId()))
 			.contentType(MediaType.APPLICATION_JSON_UTF8)
 			.accept(MediaType.APPLICATION_JSON_UTF8)
 			.body(Mono.just(newTweetData), Tweet.class)
 			.exchange()
+		//Then
 			.expectStatus().isOk()
 			.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
 			.expectBody()
@@ -111,11 +134,13 @@ public class ReactiveSpringApplicationTests {
 	@Test
 	@WithMockUser
 	public void testDeleteTweet() {
+		//Given
 		Tweet tweet = tweetRepository.save(new Tweet("To be deleted")).block();
-
+		//When
 		webTestClient.mutateWith(csrf()).delete()
 			.uri("/tweets/{id}", Collections.singletonMap("id",  tweet.getId()))
 			.exchange()
+		//Then
 			.expectStatus().isOk();
 	}
 }
