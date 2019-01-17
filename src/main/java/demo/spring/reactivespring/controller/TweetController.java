@@ -39,6 +39,11 @@ public class TweetController {
         return tweetService.findAll();
     }
 
+    @GetMapping("/tweets/trending")
+    public Flux<Tweet> getTrendingTweets() {
+        return tweetService.findAllTrendingTweets();
+    }
+
     @PostMapping("/tweets")
     @CachePut
     public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
@@ -48,7 +53,6 @@ public class TweetController {
     @GetMapping("/tweets/{id}")
     @Cacheable
     public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
-        sleepSomeTime();
         return tweetService.findById(tweetId)
             .map(ResponseEntity::ok)
             .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -83,10 +87,6 @@ public class TweetController {
     @GetMapping(value = "/stream/tweets", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Tweet> streamAllTweets() {
         return tweetService.findAll();
-    }
-
-    void sleepSomeTime() {
-
     }
 
 }

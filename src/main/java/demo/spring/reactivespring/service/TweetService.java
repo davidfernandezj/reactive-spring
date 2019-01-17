@@ -5,12 +5,10 @@ import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TrendingWordRepository;
 import demo.spring.reactivespring.repository.TweetRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,14 +30,12 @@ public class TweetService {
     }
 
     public Flux<Tweet> findAllTrendingTweets() {
-        Flux<Tweet> tweetFlux = findAll().collectList().flatMap(tweets -> getTrendingWords().collectList()
+        return findAll().collectList().flatMap(tweets -> getTrendingWords().collectList()
             .map(words ->
                 tweets.stream()
                     .filter(tweet -> isTrendingTweet(tweet, words))
                     .collect(Collectors.toList())))
             .flatMapMany(list -> Flux.fromStream(list.stream()));
-
-        return tweetFlux;
     }
 
     private boolean isTrendingTweet(Tweet tweet, List<TrendingWord> words) {

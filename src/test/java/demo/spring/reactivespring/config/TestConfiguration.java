@@ -1,6 +1,8 @@
 package demo.spring.reactivespring.config;
 
+import demo.spring.reactivespring.repository.TrendingWordRepository;
 import demo.spring.reactivespring.repository.TweetRepository;
+import demo.spring.reactivespring.testimplementations.TestTrendingWordRepository;
 import demo.spring.reactivespring.testimplementations.TestTweetRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,12 @@ public class TestConfiguration {
     @Primary
     public TweetRepository testTweetRepository() {
         return new TestTweetRepository();
+    }
+
+    @Bean
+    @Primary
+    public TrendingWordRepository testTrendingWordRepository() {
+        return new TestTrendingWordRepository();
     }
 
     /* Comment this to make a proper test
