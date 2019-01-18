@@ -15,7 +15,9 @@ public class MappingConfiguration {
 
     @Bean
     public JMapper<TweetDto, Tweet> tweetMapper() {
-        JMapperAPI jMapperApi = new JMapperAPI().add(mappedClass(TweetDto.class).add(global()));
+        JMapperAPI jMapperApi = new JMapperAPI()
+            .add(mappedClass(TweetDto.class)
+            .add(global()));
         return new JMapper<>(TweetDto.class, Tweet.class, jMapperApi);
     }
 
