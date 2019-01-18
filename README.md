@@ -13,5 +13,6 @@ Some extra nice feature have been added:
 - Spring Security + Mocking users for Component Testing
 - Spring Cache
 - AOP
+- JMapper
  
 

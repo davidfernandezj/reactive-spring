@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
+import demo.spring.reactivespring.dto.TweetDto;
 import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TweetRepository;
 import java.util.Collections;
@@ -92,7 +93,7 @@ public class ReactiveSpringApplicationTests {
 		//Then
 			.expectStatus().isOk()
 			.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
-			.expectBodyList(Tweet.class);
+			.expectBodyList(TweetDto.class);
 	}
 
 	@Test

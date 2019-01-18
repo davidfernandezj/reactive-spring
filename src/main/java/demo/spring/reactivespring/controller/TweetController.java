@@ -1,5 +1,7 @@
 package demo.spring.reactivespring.controller;
 
+import com.googlecode.jmapper.JMapper;
+import demo.spring.reactivespring.dto.TweetDto;
 import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.service.TweetService;
 import javax.validation.Valid;
@@ -33,24 +35,24 @@ public class TweetController {
 
     @GetMapping("/tweets")
     @Cacheable
-    public Flux<Tweet> getAllTweets() {
+    public Flux<TweetDto> getAllTweets() {
         return tweetService.findAll();
     }
 
     @GetMapping("/tweets/trending")
-    public Flux<Tweet> getTrendingTweets() {
+    public Flux<TweetDto> getTrendingTweets() {
         return tweetService.findAllTrendingTweets();
     }
 
     @PostMapping("/tweets")
     @CachePut
-    public Mono<Tweet> createTweets(@Valid @RequestBody Tweet tweet) {
+    public Mono<TweetDto> createTweets(@Valid @RequestBody Tweet tweet) {
         return tweetService.save(tweet);
     }
 
     @GetMapping("/tweets/{id}")
     @Cacheable
-    public Mono<ResponseEntity<Tweet>> getTweetById(@PathVariable(value = "id") String tweetId) {
+    public Mono<ResponseEntity<TweetDto>> getTweetById(@PathVariable(value = "id") String tweetId) {
         return tweetService.findById(tweetId)
             .map(ResponseEntity::ok)
             .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -58,13 +60,9 @@ public class TweetController {
 
     @PutMapping("/tweets/{id}")
     @CachePut
-    public Mono<ResponseEntity<Tweet>> updateTweet(@PathVariable(value = "id") String tweetId,
+    public Mono<ResponseEntity<TweetDto>> updateTweet(@PathVariable(value = "id") String tweetId,
         @Valid @RequestBody Tweet tweet) {
-        return tweetService.findById(tweetId)
-            .flatMap(existingTweet -> {
-                existingTweet.setText(tweet.getText());
-                return tweetService.save(existingTweet);
-            })
+        return tweetService.updateTweet(tweetId, tweet)
             .map(updatedTweet -> new ResponseEntity<>(updatedTweet, HttpStatus.OK))
             .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -72,18 +70,14 @@ public class TweetController {
     @DeleteMapping("/tweets/{id}")
     @CachePut
     public Mono<ResponseEntity<Void>> deleteTweet(@PathVariable(value = "id") String tweetId) {
-
-        return tweetService.findById(tweetId)
-            .flatMap(existingTweet ->
-                tweetService.delete(existingTweet)
-                    .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)))
-            )
+        return tweetService.deleteTweet(tweetId)
+            .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)))
             .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // Tweets are Sent to the client as Server Sent Events
     @GetMapping(value = "/stream/tweets", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Tweet> streamAllTweets() {
+    public Flux<TweetDto> streamAllTweets() {
         return tweetService.findAll();
     }
 

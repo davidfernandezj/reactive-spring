@@ -24,6 +24,7 @@
 		<java.version>1.8</java.version>
 		<lombok.version>1.18.4</lombok.version>
 		<jasypt-spring-boot-starter.version>2.1.0</jasypt-spring-boot-starter.version>
+		<jmapper-core.version>1.6.0.1</jmapper-core.version>
 	</properties>
 
 	<dependencies>
@@ -69,6 +70,17 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.jmapper-framework</groupId>
+			<artifactId>jmapper-core</artifactId>
+			<version>${jmapper-core.version}</version>
+		</dependency>
+
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-hateoas</artifactId>-->
+		<!--</dependency>-->
 
     <!-- Spring AOP -->
     <dependency>

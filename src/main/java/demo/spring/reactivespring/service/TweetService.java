@@ -1,5 +1,7 @@
 package demo.spring.reactivespring.service;
 
+import com.googlecode.jmapper.JMapper;
+import demo.spring.reactivespring.dto.TweetDto;
 import demo.spring.reactivespring.model.TrendingWord;
 import demo.spring.reactivespring.model.Tweet;
 import demo.spring.reactivespring.repository.TrendingWordRepository;
@@ -18,25 +20,42 @@ public class TweetService {
 
     private final TweetRepository tweetRepository;
     private final TrendingWordRepository trendingWordRepository;
+    private final JMapper<TweetDto, Tweet> tweetMapper;
 
     @Autowired
-    public TweetService(TweetRepository tweetRepository, TrendingWordRepository trendingWordRepository) {
+    public TweetService(TweetRepository tweetRepository, TrendingWordRepository trendingWordRepository,
+        JMapper<TweetDto, Tweet> tweetMapper) {
         this.tweetRepository = tweetRepository;
         this.trendingWordRepository = trendingWordRepository;
+        this.tweetMapper = tweetMapper;
     }
 
-    public Flux<Tweet> findAll() {
-        return tweetRepository.findAll();
+    public Flux<TweetDto> findAll() {
+        return tweetRepository.findAll().map(tweetMapper::getDestination);
     }
 
-    public Flux<Tweet> findAllTrendingTweets() {
+    public Mono<TweetDto> updateTweet(String tweetId, Tweet tweet) {
+        return tweetRepository.findById(tweetId)
+            .flatMap(existingTweet -> {
+                existingTweet.setText(tweet.getText());
+                return tweetRepository.save(existingTweet);
+            }).map(tweetMapper::getDestination);
+    }
+
+    public Mono<Void> deleteTweet(String tweetId) {
+        return tweetRepository.findById(tweetId)
+            .flatMap(tweetRepository::delete);
+    }
+
+    public Flux<TweetDto> findAllTrendingTweets() {
         //https://spring.io/blog/2016/06/13/notes-on-reactive-programming-part-ii-writing-some-code
-        return findAll().collectList().flatMap(tweets -> getTrendingWords().collectList()
+        return tweetRepository.findAll().collectList().flatMap(tweets -> getTrendingWords().collectList()
             .map(words ->
                 tweets.stream()
                     .filter(tweet -> isTrendingTweet(tweet, words))
                     .collect(Collectors.toList())))
-            .flatMapMany(list -> Flux.fromStream(list.stream()));
+            .flatMapMany(list -> Flux.fromStream(list.stream()))
+            .map(tweetMapper::getDestination);
     }
 
     private boolean isTrendingTweet(Tweet tweet, List<TrendingWord> words) {
@@ -52,12 +71,14 @@ public class TweetService {
         return trendingWordRepository.findAll();
     }
 
-    public Mono<Tweet> findById(String tweetId) {
-        return tweetRepository.findById(tweetId);
+    public Mono<TweetDto> findById(String tweetId) {
+        return tweetRepository.findById(tweetId)
+            .map(tweetMapper::getDestination);
     }
 
-    public Mono<Tweet> save(Tweet newTweet) {
-        return tweetRepository.save(newTweet);
+    public Mono<TweetDto> save(Tweet newTweet) {
+        return tweetRepository.save(newTweet)
+            .map(tweetMapper::getDestination);
     }
 
     public Mono<Void> delete(Tweet existingTweet) {
